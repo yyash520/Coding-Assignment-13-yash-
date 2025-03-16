@@ -1,0 +1,9 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx prettier --check .
+npx eslint . --fix
+npm test
+npm run format && npm run lint && npm test
+undefined
+npm run format && npm run lint && npm test
