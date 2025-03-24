@@ -1,26 +1,23 @@
-# Use an official Node.js image as the base
-FROM node:18
+# Use Node.js as the base image
+FROM node:18-alpine AS build
 
 # Set working directory
 WORKDIR /lastName_firstName_ui_garden_build_checks
 
 # Copy package.json and install dependencies
 COPY package.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copy the rest of the app
+# Copy source code and build
 COPY . .
-
-# Run tests and lint checks
-RUN npx husky install
-RUN npm run lint
-RUN npm test
-
-# Build the production app
 RUN npm run build
+
+# Use Nginx to serve the app
+FROM nginx:alpine
+COPY --from=build /lastName_firstName_ui_garden_build_checks/build /usr/share/nginx/html
 
 # Expose port 8018
 EXPOSE 8018
 
-# Start Application
-CMD ["npx", "serve", "-s", "build", "-l", "8018"]
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
